@@ -97,6 +97,9 @@ export function AuthForm({ mode }: AuthFormProps) {
     },
   });
   const password = watch("password") ?? "";
+  const confirmPassword = watch("confirmPassword") ?? "";
+  const passwordMismatch =
+    isSignup && confirmPassword.length > 0 && password !== confirmPassword;
   const authMutation = useMutation({
     mutationFn: (values: AuthFormValues) =>
       isSignup
@@ -193,7 +196,13 @@ export function AuthForm({ mode }: AuthFormProps) {
                 placeholder="••••••••"
                 {...register("confirmPassword")}
               />
-              <InlineError message={errors.confirmPassword?.message} />
+              <InlineError
+                message={
+                  passwordMismatch
+                    ? "Passwords do not match"
+                    : errors.confirmPassword?.message
+                }
+              />
             </div>
           ) : null}
 
