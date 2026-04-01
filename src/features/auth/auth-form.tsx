@@ -12,8 +12,17 @@ import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
 import { authApi } from "@/shared/lib/api";
 
+const optionalNameSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return value;
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : trimmed;
+  },
+  z.string().min(2).optional(),
+);
+
 const authSchema = z.object({
-  name: z.string().min(2).optional(),
+  name: optionalNameSchema,
   email: z.string().email(),
   password: z.string().min(6),
 });
