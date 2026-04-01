@@ -44,8 +44,10 @@ export function AppShell() {
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">StudyFlow</p>
               <h2 className="mt-2 text-xl font-extrabold">Your topics</h2>
             </div>
-            <Button variant="secondary" size="icon">
-              <PlusCircle className="h-4 w-4" />
+            <Button variant="secondary" size="icon" asChild>
+              <Link to="/topics?create=1#topic-name" aria-label="Create topic">
+                <PlusCircle className="h-4 w-4" />
+              </Link>
             </Button>
           </div>
 

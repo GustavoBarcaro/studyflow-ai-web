@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { TopicColorPicker } from "@/features/topics/topic-color-picker";
 import { TopicCard } from "@/features/topics/topic-card";
@@ -17,9 +18,11 @@ import { Separator } from "@/shared/components/ui/separator";
 import type { Topic } from "@/shared/types/domain";
 
 export function TopicsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [name, setName] = useState("");
   const [color, setColor] = useState("#0EA5E9");
   const [topicToDelete, setTopicToDelete] = useState<Topic | null>(null);
+  const topicNameInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const {
     data: topics = [],
@@ -80,6 +83,17 @@ export function TopicsPage() {
   const normalizedColor = isValidHexColor(color) ? normalizeHexColor(color) : color;
   const canCreateTopic = Boolean(name.trim()) && isValidHexColor(color) && !createTopicMutation.isPending;
 
+  useEffect(() => {
+    if (searchParams.get("create") !== "1") return;
+
+    topicNameInputRef.current?.focus();
+    topicNameInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("create");
+    setSearchParams(nextParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   return (
     <div className="space-y-6">
       <Card
@@ -101,6 +115,7 @@ export function TopicsPage() {
               <Label htmlFor="topic-name">Topic name</Label>
               <Input
                 id="topic-name"
+                ref={topicNameInputRef}
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Create a new topic"
