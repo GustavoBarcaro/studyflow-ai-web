@@ -13,17 +13,17 @@ import { cn } from "@/shared/lib/utils";
 export function AppShell() {
   const user = useAuthStore((state) => state.user);
   const clearSession = useAuthStore((state) => state.clearSession);
-  const { data: topics = [] } = useQuery({
+  const { data: topics } = useQuery({
     queryKey: ["topics"],
     queryFn: api.getTopics,
   });
-  const { data: sessions = [] } = useQuery({
+  const { data: sessions } = useQuery({
     queryKey: ["sessions"],
     queryFn: api.getSessions,
   });
 
-  const topicsWithMeta = topics.map((topic) => {
-    const relatedSessions = sessions.filter((session) => session.topicId === topic.id);
+  const topicsWithMeta = (topics ?? []).map((topic) => {
+    const relatedSessions = (sessions ?? []).filter((session) => session.topicId === topic.id);
     const lastActivity = relatedSessions
       .map((session) => session.updatedAt)
       .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0];

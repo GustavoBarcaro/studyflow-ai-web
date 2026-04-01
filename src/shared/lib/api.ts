@@ -5,6 +5,8 @@ import type {
   ExplainAgainRequest,
   ExplainAgainResponse,
   GeneratedQuizResponse,
+  LearningPath,
+  LearningPathStep,
   Message,
   SessionDetails,
   StudySession,
@@ -31,6 +33,10 @@ type RequestOptions = {
   auth?: boolean;
   retryOnUnauthorized?: boolean;
 };
+
+function ensureArray<T>(value: T[] | null | undefined) {
+  return Array.isArray(value) ? value : [];
+}
 
 async function parseResponse<T>(response: Response) {
   const contentType = response.headers.get("content-type") ?? "";
@@ -187,20 +193,44 @@ export const authApi = {
 };
 
 export const api = {
-  getTopics: () => request<Topic[]>("/topics"),
+  getTopics: async () => ensureArray(await request<Topic[] | null>("/topics")),
   getTopic: (topicId: string) => request<Topic>(`/topics/${topicId}`),
   createTopic: (payload: { name: string; color?: string }) =>
     request<Topic>("/topics", {
       method: "POST",
       body: payload,
     }),
+  getLearningPathByTopic: async (topicId: string) => {
+    try {
+      return await request<LearningPath>(`/topics/${topicId}/learning-path`);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        return null;
+      }
+
+      throw error;
+    }
+  },
+  createLearningPathByTopic: (topicId: string, payload?: { goal?: string; sessionId?: string }) =>
+    request<LearningPath>(`/topics/${topicId}/learning-path`, {
+      method: "POST",
+      body: payload ?? {},
+    }),
+  completeLearningPathStep: (stepId: string) =>
+    request<LearningPathStep>(`/learning-path-steps/${stepId}/complete`, {
+      method: "PATCH",
+    }),
+  incompleteLearningPathStep: (stepId: string) =>
+    request<LearningPathStep>(`/learning-path-steps/${stepId}/incomplete`, {
+      method: "PATCH",
+    }),
   deleteTopic: (topicId: string) =>
     request<null>(`/topics/${topicId}`, {
       method: "DELETE",
     }),
-  getSessions: () => request<StudySession[]>("/sessions"),
+  getSessions: async () => ensureArray(await request<StudySession[] | null>("/sessions")),
   getSessionsByTopic: async (topicId: string) => {
-    const sessions = await request<StudySession[]>("/sessions");
+    const sessions = await ensureArray(await request<StudySession[] | null>("/sessions"));
     return sessions.filter((session) => session.topicId === topicId);
   },
   createSession: (payload: { title: string; topicId: string }) =>
@@ -213,7 +243,7 @@ export const api = {
       method: "DELETE",
     }),
   getSession: (sessionId: string) => request<SessionDetails>(`/sessions/${sessionId}`),
-  getMessages: (sessionId: string) => request<Message[]>(`/sessions/${sessionId}/messages`),
+  getMessages: async (sessionId: string) => ensureArray(await request<Message[] | null>(`/sessions/${sessionId}/messages`)),
   createMessage: (sessionId: string, payload: { content: string }) =>
     request<CreateMessageResponse>(`/sessions/${sessionId}/messages`, {
       method: "POST",

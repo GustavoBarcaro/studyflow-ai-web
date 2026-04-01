@@ -10,6 +10,29 @@ export type Topic = {
   color?: string | null;
 };
 
+export type LearningPathStatus = "active" | "completed";
+
+export type LearningPathStep = {
+  id: string;
+  learningPathId: string;
+  title: string;
+  description: string;
+  order: number;
+  completed: boolean;
+  completedAt: string | null;
+};
+
+export type LearningPath = {
+  id: string;
+  userId: string;
+  topicId: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  status: LearningPathStatus;
+  steps: LearningPathStep[];
+};
+
 export type SessionTopic = Topic;
 
 export type StudySession = {

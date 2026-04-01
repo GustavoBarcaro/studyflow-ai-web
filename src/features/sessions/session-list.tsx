@@ -30,22 +30,26 @@ export function SessionList({ sessions, onDelete, deletingSessionId }: SessionLi
                 Updated {formatRelativeSessionDate(session.updatedAt)}
               </div>
             </div>
-            <Button asChild>
-              <Link to={`/sessions/${session.id}`}>
-                Open session
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            {onDelete && (
-              <Button
-                variant="outline"
-                onClick={() => onDelete(session)}
-                disabled={deletingSessionId === session.id}
-              >
-                <Trash2 className="h-4 w-4" />
-                {deletingSessionId === session.id ? "Deleting..." : "Delete"}
+
+            <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:justify-end">
+              <Button asChild className="sm:flex-1 lg:flex-none">
+                <Link to={`/sessions/${session.id}`}>
+                  Open session
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
               </Button>
-            )}
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  className="sm:flex-1 lg:flex-none"
+                  onClick={() => onDelete(session)}
+                  disabled={deletingSessionId === session.id}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {deletingSessionId === session.id ? "Deleting..." : "Delete"}
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       ))}

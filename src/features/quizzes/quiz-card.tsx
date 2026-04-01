@@ -39,6 +39,10 @@ export function QuizCard({ quiz, difficulty }: QuizCardProps) {
             const key = `${question.question}-${index}`;
             const selectedOptionId = answers[key];
             const isAnswered = Boolean(selectedOptionId);
+            const selectedOption = question.options.find((option) => option.id === selectedOptionId);
+            const correctOption = question.options.find((option) => option.id === question.correctOptionId);
+            const answeredCorrectly = submitted && selectedOptionId === question.correctOptionId;
+            const answeredIncorrectly = submitted && isAnswered && selectedOptionId !== question.correctOptionId;
 
             return (
               <div
@@ -105,8 +109,38 @@ export function QuizCard({ quiz, difficulty }: QuizCardProps) {
                   })}
                 </div>
                 {submitted && (
-                  <div className="rounded-xl border bg-muted/40 p-4">
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Explanation</p>
+                  <div
+                    className={cn(
+                      "rounded-xl border p-4",
+                      answeredCorrectly && "border-emerald-200 bg-emerald-50",
+                      answeredIncorrectly && "border-red-200 bg-red-50",
+                      !isAnswered && "border-border bg-muted/40",
+                    )}
+                  >
+                    <p
+                      className={cn(
+                        "mb-3 text-xs font-semibold uppercase tracking-wide",
+                        answeredCorrectly && "text-emerald-700",
+                        answeredIncorrectly && "text-red-700",
+                        !isAnswered && "text-muted-foreground",
+                      )}
+                    >
+                      {answeredCorrectly ? "Correct answer" : answeredIncorrectly ? "Incorrect answer" : "Not answered"}
+                    </p>
+
+                    {selectedOption && (
+                      <p className={cn("text-sm leading-6", answeredIncorrectly ? "text-red-700" : "text-muted-foreground")}>
+                        <span className="font-semibold">Your answer:</span> {selectedOption.id}. {selectedOption.text}
+                      </p>
+                    )}
+
+                    {correctOption && (
+                      <p className="mt-2 text-sm leading-6 text-emerald-700">
+                        <span className="font-semibold">Correct option:</span> {correctOption.id}. {correctOption.text}
+                      </p>
+                    )}
+
+                    <p className="mb-1 mt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Explanation</p>
                     <p className="text-sm leading-6 text-muted-foreground">{question.explanation}</p>
                   </div>
                 )}

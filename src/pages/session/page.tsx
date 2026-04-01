@@ -11,12 +11,15 @@ import { PageLoading } from "@/shared/components/common/page-loading";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { api } from "@/shared/lib/api";
+import type { QuizDifficulty } from "@/shared/types/domain";
 
 export function SessionPage() {
   const { sessionId = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [quizDifficulty, setQuizDifficulty] = useState<QuizDifficulty>("medium");
+  const [questions, setQuestions] = useState(3);
 
   const {
     data: session,
@@ -111,7 +114,7 @@ export function SessionPage() {
                 Explain again
               </Button>
               <Button asChild>
-                <Link to={`/quizzes/${sessionId}?difficulty=medium&questions=3`}>
+                <Link to={`/quizzes/${sessionId}?difficulty=${quizDifficulty}&questions=${questions}`}>
                   <Sparkles className="h-4 w-4" />
                   Quiz
                 </Link>
@@ -138,7 +141,13 @@ export function SessionPage() {
         </Card>
       </div>
 
-      <StudyToolsPanel sessionId={sessionId} />
+      <StudyToolsPanel
+        sessionId={sessionId}
+        quizDifficulty={quizDifficulty}
+        questions={questions}
+        onQuizDifficultyChange={setQuizDifficulty}
+        onQuestionsChange={(nextQuestions) => setQuestions(Math.max(1, Math.min(10, nextQuestions)))}
+      />
 
       <DeleteConfirmDialog
         open={isDeleteOpen}

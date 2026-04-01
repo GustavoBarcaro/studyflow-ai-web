@@ -16,13 +16,21 @@ import type { QuizDifficulty, StudyLevel } from "@/shared/types/domain";
 
 type StudyToolsPanelProps = {
   sessionId: string;
+  quizDifficulty: QuizDifficulty;
+  questions: number;
+  onQuizDifficultyChange: (difficulty: QuizDifficulty) => void;
+  onQuestionsChange: (questions: number) => void;
 };
 
-export function StudyToolsPanel({ sessionId }: StudyToolsPanelProps) {
+export function StudyToolsPanel({
+  sessionId,
+  quizDifficulty,
+  questions,
+  onQuizDifficultyChange,
+  onQuestionsChange,
+}: StudyToolsPanelProps) {
   const [focus, setFocus] = useState("");
   const [level, setLevel] = useState<StudyLevel>("beginner");
-  const [quizDifficulty, setQuizDifficulty] = useState<QuizDifficulty>("medium");
-  const [questions, setQuestions] = useState(3);
 
   const summaryMutation = useMutation({
     mutationFn: () => api.summarizeSession(sessionId),
@@ -162,19 +170,19 @@ export function StudyToolsPanel({ sessionId }: StudyToolsPanelProps) {
             <div className="grid grid-cols-3 gap-2">
               <Button
                 variant={quizDifficulty === "easy" ? "default" : "outline"}
-                onClick={() => setQuizDifficulty("easy")}
+                onClick={() => onQuizDifficultyChange("easy")}
               >
                 Easy
               </Button>
               <Button
                 variant={quizDifficulty === "medium" ? "default" : "outline"}
-                onClick={() => setQuizDifficulty("medium")}
+                onClick={() => onQuizDifficultyChange("medium")}
               >
                 Medium
               </Button>
               <Button
                 variant={quizDifficulty === "hard" ? "default" : "outline"}
-                onClick={() => setQuizDifficulty("hard")}
+                onClick={() => onQuizDifficultyChange("hard")}
               >
                 Hard
               </Button>
@@ -188,7 +196,7 @@ export function StudyToolsPanel({ sessionId }: StudyToolsPanelProps) {
               min={1}
               max={10}
               value={questions}
-              onChange={(event) => setQuestions(Number(event.target.value) || 1)}
+              onChange={(event) => onQuestionsChange(Number(event.target.value) || 1)}
             />
           </div>
           <p className="text-sm text-muted-foreground">The quiz page generates on demand from the current session context.</p>

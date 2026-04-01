@@ -72,17 +72,6 @@ export function TopicsPage() {
     };
   });
 
-  if (isTopicsPending || isSessionsPending) {
-    return <PageLoading titleWidth="w-96" />;
-  }
-
-  if (topicsError || sessionsError) {
-    return <p className="text-sm text-red-600">{(topicsError ?? sessionsError)?.message}</p>;
-  }
-
-  const normalizedColor = isValidHexColor(color) ? normalizeHexColor(color) : color;
-  const canCreateTopic = Boolean(name.trim()) && isValidHexColor(color) && !createTopicMutation.isPending;
-
   useEffect(() => {
     if (searchParams.get("create") !== "1") return;
 
@@ -93,6 +82,17 @@ export function TopicsPage() {
     nextParams.delete("create");
     setSearchParams(nextParams, { replace: true });
   }, [searchParams, setSearchParams]);
+
+  if (isTopicsPending || isSessionsPending) {
+    return <PageLoading titleWidth="w-96" />;
+  }
+
+  if (topicsError || sessionsError) {
+    return <p className="text-sm text-red-600">{(topicsError ?? sessionsError)?.message}</p>;
+  }
+
+  const normalizedColor = isValidHexColor(color) ? normalizeHexColor(color) : color;
+  const canCreateTopic = Boolean(name.trim()) && isValidHexColor(color) && !createTopicMutation.isPending;
 
   return (
     <div className="space-y-6">
