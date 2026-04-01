@@ -35,7 +35,9 @@ export function decodeAccessToken(accessToken: string): AuthUser | null {
     return {
       id: decoded.sub ?? "",
       email: decoded.email,
-      name: fallbackName ? fallbackName.replace(/\b\w/g, (char) => char.toUpperCase()) : null,
+      name: fallbackName
+        ? fallbackName.replace(/\b\w/g, (char) => char.toUpperCase())
+        : null,
     };
   } catch {
     return null;
@@ -56,7 +58,10 @@ export function getAccessTokenExpiry(accessToken: string): number | null {
   }
 }
 
-export function isAccessTokenExpiredOrNearExpiry(accessToken: string, thresholdMs = 30_000) {
+export function isAccessTokenExpiredOrNearExpiry(
+  accessToken: string,
+  thresholdMs = 30_000,
+) {
   const expiry = getAccessTokenExpiry(accessToken);
 
   if (!expiry) {

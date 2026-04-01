@@ -4,11 +4,11 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 
 import { useAuthStore } from "@/features/auth/store";
 import { authApi, api } from "@/shared/lib/api";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { withAlpha } from "@/shared/lib/color";
 import { formatRelativeSessionDate } from "@/shared/lib/format";
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function AppShell() {
   const user = useAuthStore((state) => state.user);
@@ -23,24 +23,32 @@ export function AppShell() {
   });
 
   const topicsWithMeta = (topics ?? []).map((topic) => {
-    const relatedSessions = (sessions ?? []).filter((session) => session.topicId === topic.id);
+    const relatedSessions = (sessions ?? []).filter(
+      (session) => session.topicId === topic.id,
+    );
     const lastActivity = relatedSessions
       .map((session) => session.updatedAt)
-      .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0];
+      .sort(
+        (left, right) => new Date(right).getTime() - new Date(left).getTime(),
+      )[0];
 
     return {
       ...topic,
       sessionsCount: relatedSessions.length,
-      lastActivity: lastActivity ? formatRelativeSessionDate(lastActivity) : "No sessions yet",
+      lastActivity: lastActivity
+        ? formatRelativeSessionDate(lastActivity)
+        : "No sessions yet",
     };
   });
 
   return (
-    <div className="min-h-screen p-4 md:p-6">
-      <div className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1600px] gap-4 lg:grid-cols-[280px_1fr]">
-        <aside className="rounded-[2rem] border bg-white/85 p-5 shadow-soft backdrop-blur">
+    <div className="min-h-screen p-3 sm:p-4 md:p-6">
+      <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[1600px] gap-4 lg:min-h-[calc(100vh-2rem)] lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="rounded-[2rem] border bg-white/85 p-4 shadow-soft backdrop-blur sm:p-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">StudyFlow</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+              StudyFlow
+            </p>
             <h2 className="mt-2 text-xl font-extrabold">Your topics</h2>
           </div>
 
@@ -50,7 +58,9 @@ export function AppShell() {
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
-                  isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-muted",
+                  isActive
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:bg-muted",
                 )
               }
             >
@@ -59,7 +69,7 @@ export function AppShell() {
             </NavLink>
           </nav>
 
-          <div className="mt-8 space-y-3">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             {topicsWithMeta.map((topic) => (
               <Link
                 key={topic.id}
@@ -75,11 +85,15 @@ export function AppShell() {
                 <div className="mt-3 flex items-center justify-between gap-3">
                   <div>
                     <p className="font-semibold">{topic.name}</p>
-                    <p className="text-sm text-muted-foreground">{topic.sessionsCount} sessions</p>
+                    <p className="text-sm text-muted-foreground">
+                      {topic.sessionsCount} sessions
+                    </p>
                   </div>
                   <Badge>{topic.sessionsCount}</Badge>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">{topic.lastActivity}</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {topic.lastActivity}
+                </p>
               </Link>
             ))}
           </div>
@@ -104,7 +118,7 @@ export function AppShell() {
           </div>
         </aside>
 
-        <main className="min-h-[calc(100vh-3rem)] rounded-[2rem] border bg-white/70 p-4 shadow-soft backdrop-blur md:p-6">
+        <main className="min-h-[calc(100vh-3rem)] rounded-[2rem] border bg-white/70 p-4 shadow-soft backdrop-blur sm:p-5 md:p-6">
           <Outlet />
         </main>
       </div>

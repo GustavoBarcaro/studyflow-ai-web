@@ -3,18 +3,23 @@ import { PlusCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { TopicColorPicker } from "@/features/topics/topic-color-picker";
-import { TopicCard } from "@/features/topics/topic-card";
-import { DeleteConfirmDialog } from "@/shared/components/common/delete-confirm-dialog";
-import { PageLoading } from "@/shared/components/common/page-loading";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { TopicColorPicker } from "@/features/topics/color/picker";
+import { TopicCard } from "@/features/topics/card";
+import { DeleteConfirmDialog } from "@/shared/components/common/delete-confirm/dialog";
+import { InlineError } from "@/shared/components/common/inline-error";
+import { PageLoading } from "@/shared/components/common/page/loading";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/shared/lib/api";
-import { isValidHexColor, normalizeHexColor, withAlpha } from "@/shared/lib/color";
+import {
+  isValidHexColor,
+  normalizeHexColor,
+  withAlpha,
+} from "@/shared/lib/color";
 import { formatRelativeSessionDate } from "@/shared/lib/format";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Separator } from "@/shared/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import type { Topic } from "@/shared/types/domain";
 
 export function TopicsPage() {
@@ -60,15 +65,21 @@ export function TopicsPage() {
   });
 
   const topicsWithMeta = topics.map((topic) => {
-    const relatedSessions = sessions.filter((session) => session.topicId === topic.id);
+    const relatedSessions = sessions.filter(
+      (session) => session.topicId === topic.id,
+    );
     const lastActivity = relatedSessions
       .map((session) => session.updatedAt)
-      .sort((left, right) => new Date(right).getTime() - new Date(left).getTime())[0];
+      .sort(
+        (left, right) => new Date(right).getTime() - new Date(left).getTime(),
+      )[0];
 
     return {
       topic,
       sessionsCount: relatedSessions.length,
-      lastActivity: lastActivity ? formatRelativeSessionDate(lastActivity) : "No sessions yet",
+      lastActivity: lastActivity
+        ? formatRelativeSessionDate(lastActivity)
+        : "No sessions yet",
     };
   });
 
@@ -76,7 +87,10 @@ export function TopicsPage() {
     if (searchParams.get("create") !== "1") return;
 
     topicNameInputRef.current?.focus();
-    topicNameInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    topicNameInputRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
 
     const nextParams = new URLSearchParams(searchParams);
     nextParams.delete("create");
@@ -88,11 +102,16 @@ export function TopicsPage() {
   }
 
   if (topicsError || sessionsError) {
-    return <p className="text-sm text-red-600">{(topicsError ?? sessionsError)?.message}</p>;
+    return <InlineError message={(topicsError ?? sessionsError)?.message} />;
   }
 
-  const normalizedColor = isValidHexColor(color) ? normalizeHexColor(color) : color;
-  const canCreateTopic = Boolean(name.trim()) && isValidHexColor(color) && !createTopicMutation.isPending;
+  const normalizedColor = isValidHexColor(color)
+    ? normalizeHexColor(color)
+    : color;
+  const canCreateTopic =
+    Boolean(name.trim()) &&
+    isValidHexColor(color) &&
+    !createTopicMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -104,10 +123,15 @@ export function TopicsPage() {
       >
         <CardContent className="flex flex-col gap-4 pt-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl space-y-2">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">Topics</p>
-            <h1 className="text-4xl font-extrabold">Study organized by topic, with visible progress.</h1>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+              Topics
+            </p>
+            <h1 className="text-3xl font-extrabold sm:text-4xl">
+              Study organized by topic, with visible progress.
+            </h1>
             <p className="text-muted-foreground">
-              The home screen should answer three things fast: what to study, where you left off, and how to keep moving.
+              The home screen should answer three things fast: what to study,
+              where you left off, and how to keep moving.
             </p>
           </div>
           <div className="w-full max-w-md space-y-4 rounded-[1.5rem] border bg-background/90 p-4 shadow-sm backdrop-blur">
@@ -127,15 +151,20 @@ export function TopicsPage() {
               size="lg"
               className="w-full"
               disabled={!canCreateTopic}
-              onClick={() => createTopicMutation.mutate({ name: name.trim(), color: normalizeHexColor(color) })}
+              onClick={() =>
+                createTopicMutation.mutate({
+                  name: name.trim(),
+                  color: normalizeHexColor(color),
+                })
+              }
             >
               <PlusCircle className="h-4 w-4" />
               {createTopicMutation.isPending ? "Creating..." : "Create topic"}
             </Button>
-            {!isValidHexColor(color) && <p className="text-sm text-red-600">Choose a valid hexadecimal color to create the topic.</p>}
-            {createTopicMutation.error && (
-              <p className="text-sm text-red-600">{createTopicMutation.error.message}</p>
-            )}
+            {!isValidHexColor(color) ? (
+              <InlineError message="Choose a valid hexadecimal color to create the topic." />
+            ) : null}
+            <InlineError message={createTopicMutation.error?.message} />
           </div>
         </CardContent>
       </Card>
@@ -149,13 +178,18 @@ export function TopicsPage() {
               sessionsCount={sessionsCount}
               lastActivity={lastActivity}
               onDelete={(selectedTopic) => setTopicToDelete(selectedTopic)}
-              isDeleting={deleteTopicMutation.isPending && topicToDelete?.id === topic.id}
+              isDeleting={
+                deleteTopicMutation.isPending && topicToDelete?.id === topic.id
+              }
             />
           ))
         ) : (
           <Card className="border-dashed border-white/60 xl:col-span-3">
             <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">No topics yet. Create the first one to start organizing sessions.</p>
+              <p className="text-sm text-muted-foreground">
+                No topics yet. Create the first one to start organizing
+                sessions.
+              </p>
             </CardContent>
           </Card>
         )}

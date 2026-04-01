@@ -1,13 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 
-type BackLinkProps = {
+interface BackLinkProps {
   to: string;
   label: string;
   className?: string;
-};
+}
 
 export function BackLink({ to, label, className }: BackLinkProps) {
   return (

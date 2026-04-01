@@ -1,4 +1,4 @@
-import { AuthForm } from "@/features/auth/auth-form";
+import { AuthForm } from "@/features/auth/form";
 import { AuthShell } from "@/shared/components/layout/auth-shell";
 
 export function SignupPage() {

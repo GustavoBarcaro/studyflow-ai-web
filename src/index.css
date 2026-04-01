@@ -30,8 +30,16 @@
 body {
   @apply bg-background text-foreground min-h-screen antialiased;
   background-image:
-    radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 28%),
-    radial-gradient(circle at top right, rgba(14, 116, 144, 0.14), transparent 22%),
+    radial-gradient(
+      circle at top left,
+      rgba(245, 158, 11, 0.12),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(14, 116, 144, 0.14),
+      transparent 22%
+    ),
     linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 251, 235, 0.9));
 }
 

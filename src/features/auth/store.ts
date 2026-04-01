@@ -1,6 +1,10 @@
 import { create } from "zustand";
 
-import { clearStoredAuthState, persistAuthState, readStoredAuthState } from "@/shared/lib/auth";
+import {
+  clearStoredAuthState,
+  persistAuthState,
+  readStoredAuthState,
+} from "@/shared/lib/auth";
 import type { AuthUser } from "@/shared/types/domain";
 
 type AuthState = {

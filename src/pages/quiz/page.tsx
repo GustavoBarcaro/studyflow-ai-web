@@ -1,15 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router-dom";
 
-import { QuizCard } from "@/features/quizzes/quiz-card";
-import { BackLink } from "@/shared/components/common/back-link";
-import { PageLoading } from "@/shared/components/common/page-loading";
+import { QuizCard } from "@/features/quizzes/card";
+import { InlineError } from "@/shared/components/common/inline-error";
+import { PageLoading } from "@/shared/components/common/page/loading";
+import { PageHeader } from "@/shared/components/common/page/header";
 import { api } from "@/shared/lib/api";
 
 export function QuizPage() {
   const { sessionId = "" } = useParams();
   const [searchParams] = useSearchParams();
-  const difficulty = (searchParams.get("difficulty") ?? "medium") as "easy" | "medium" | "hard";
+  const difficulty = (searchParams.get("difficulty") ?? "medium") as
+    | "easy"
+    | "medium"
+    | "hard";
   const questions = Number(searchParams.get("questions") ?? "3");
   const {
     data: session,
@@ -37,7 +41,7 @@ export function QuizPage() {
   }
 
   if (sessionError || quizError) {
-    return <p className="text-sm text-red-600">{(sessionError ?? quizError)?.message}</p>;
+    return <InlineError message={(sessionError ?? quizError)?.message} />;
   }
 
   if (!quiz) {
@@ -46,13 +50,18 @@ export function QuizPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <BackLink to={`/sessions/${sessionId}`} label="Back to session" />
-        <h1 className="text-4xl font-extrabold">Quiz flow</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          The quiz is generated live from the session context{session ? ` in ${session.topic.name}` : ""}, not bolted on as a separate tool.
-        </p>
-      </div>
+      <PageHeader
+        backLink={{ to: `/sessions/${sessionId}`, label: "Back to session" }}
+        title="Quiz flow"
+        titleClassName="text-3xl sm:text-4xl"
+        description={
+          <p className="max-w-2xl">
+            The quiz is generated live from the session context
+            {session ? ` in ${session.topic.name}` : ""}, not bolted on as a
+            separate tool.
+          </p>
+        }
+      />
       <QuizCard quiz={quiz.quiz} difficulty={difficulty} />
     </div>
   );

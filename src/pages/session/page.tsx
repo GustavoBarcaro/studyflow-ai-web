@@ -1,25 +1,28 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Sparkles, Target, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { BackLink } from "@/shared/components/common/back-link";
-import { DeleteConfirmDialog } from "@/shared/components/common/delete-confirm-dialog";
-import { MessageComposer } from "@/features/messages/message-composer";
-import { MessageList } from "@/features/messages/message-list";
-import { StudyToolsPanel } from "@/features/study-tools/study-tools-panel";
-import { PageLoading } from "@/shared/components/common/page-loading";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { DeleteConfirmDialog } from "@/shared/components/common/delete-confirm/dialog";
+import { InlineError } from "@/shared/components/common/inline-error";
+import { SessionChatCard } from "@/features/messages/session-chat";
+import { SessionHero } from "@/features/sessions/hero";
+import { StudyToolsPanel } from "@/features/study-tools/panel";
+import { PageLoading } from "@/shared/components/common/page/loading";
+import { Card } from "@/components/ui/card";
 import { api } from "@/shared/lib/api";
-import type { CreateMessageResponse, Message, QuizDifficulty } from "@/shared/types/domain";
+import type {
+  CreateMessageResponse,
+  Message,
+  QuizDifficulty,
+} from "@/shared/types/domain";
 
 export function SessionPage() {
   const { sessionId = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [quizDifficulty, setQuizDifficulty] = useState<QuizDifficulty>("medium");
+  const [quizDifficulty, setQuizDifficulty] =
+    useState<QuizDifficulty>("medium");
   const [questions, setQuestions] = useState(3);
 
   const {
@@ -43,7 +46,8 @@ export function SessionPage() {
     onMutate: async (content) => {
       await queryClient.cancelQueries({ queryKey: ["messages", sessionId] });
 
-      const previousMessages = queryClient.getQueryData<Message[]>(["messages", sessionId]) ?? [];
+      const previousMessages =
+        queryClient.getQueryData<Message[]>(["messages", sessionId]) ?? [];
       const timestamp = new Date().toISOString();
       const optimisticUserMessage: Message = {
         id: `optimistic-user-${Date.now()}`,
@@ -61,11 +65,14 @@ export function SessionPage() {
         isPending: true,
       };
 
-      queryClient.setQueryData<Message[]>(["messages", sessionId], [
-        ...previousMessages,
-        optimisticUserMessage,
-        optimisticAssistantMessage,
-      ]);
+      queryClient.setQueryData<Message[]>(
+        ["messages", sessionId],
+        [
+          ...previousMessages,
+          optimisticUserMessage,
+          optimisticAssistantMessage,
+        ],
+      );
 
       return {
         previousMessages,
@@ -75,28 +82,35 @@ export function SessionPage() {
     },
     onError: (_error, _content, context) => {
       if (context?.previousMessages) {
-        queryClient.setQueryData(["messages", sessionId], context.previousMessages);
+        queryClient.setQueryData(
+          ["messages", sessionId],
+          context.previousMessages,
+        );
       }
     },
     onSuccess: async (data: CreateMessageResponse, _content, context) => {
-      queryClient.setQueryData<Message[]>(["messages", sessionId], (currentMessages = []) =>
-        currentMessages.map((message) => {
-          if (message.id === context?.optimisticUserMessageId) {
-            return data.userMessage;
-          }
+      queryClient.setQueryData<Message[]>(
+        ["messages", sessionId],
+        (currentMessages = []) =>
+          currentMessages.map((message) => {
+            if (message.id === context?.optimisticUserMessageId) {
+              return data.userMessage;
+            }
 
-          if (message.id === context?.optimisticAssistantMessageId) {
-            return data.assistantMessage;
-          }
+            if (message.id === context?.optimisticAssistantMessageId) {
+              return data.assistantMessage;
+            }
 
-          return message;
-        }),
+            return message;
+          }),
       );
 
       await queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["messages", sessionId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["messages", sessionId],
+      });
     },
   });
   const deleteSessionMutation = useMutation({
@@ -104,7 +118,9 @@ export function SessionPage() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["sessions"] }),
-        queryClient.invalidateQueries({ queryKey: ["sessions", session?.topicId] }),
+        queryClient.invalidateQueries({
+          queryKey: ["sessions", session?.topicId],
+        }),
         queryClient.invalidateQueries({ queryKey: ["topics"] }),
       ]);
       navigate(`/topics/${session?.topicId ?? ""}`);
@@ -116,84 +132,52 @@ export function SessionPage() {
   }
 
   if (sessionError || messagesError) {
-    return <p className="text-sm text-red-600">{(sessionError ?? messagesError)?.message}</p>;
+    return <InlineError message={(sessionError ?? messagesError)?.message} />;
   }
 
   if (!session) {
     return <p>Session not found.</p>;
   }
 
-  const latestUserMessage = [...messages].reverse().find((message) => message.role === "user")?.content?.trim();
+  const latestUserMessage = [...messages]
+    .reverse()
+    .find((message) => message.role === "user")
+    ?.content?.trim();
   const sessionPromptContext = latestUserMessage || session.title;
   const shortenedSessionPromptContext =
-    sessionPromptContext.length > 60 ? `${sessionPromptContext.slice(0, 57).trim()}...` : sessionPromptContext;
+    sessionPromptContext.length > 60
+      ? `${sessionPromptContext.slice(0, 57).trim()}...`
+      : sessionPromptContext;
   const composerPlaceholder = `Ask about ${session.topic.name} or try "Explain about ${shortenedSessionPromptContext} simply"`;
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
         <Card className="border-white/60 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(224,242,254,0.8))]">
-          <CardHeader className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="space-y-2">
-                <BackLink to={`/topics/${session.topicId}`} label="Back to topic" />
-                <CardTitle className="text-4xl font-extrabold">{session.title}</CardTitle>
-                <CardDescription className="max-w-2xl text-base">
-                  The session page is the product core: chat centered, actions explicit, and the learner always reminded of the study objective.
-                </CardDescription>
-              </div>
-              <div className="rounded-[1.5rem] bg-white p-4 shadow-sm">
-                <p className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Target className="h-4 w-4 text-accent" />
-                  Session objective
-                </p>
-                <p className="mt-2 max-w-sm text-sm leading-6">
-                  Build understanding inside <span className="font-semibold">{session.topic.name}</span> and keep every explanation connected to the stored conversation.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => document.getElementById("study-tools-panel")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                <Sparkles className="h-4 w-4" />
-                Summarize
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => document.getElementById("study-tools-panel")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                <Sparkles className="h-4 w-4" />
-                Explain again
-              </Button>
-              <Button asChild>
-                <Link to={`/quizzes/${sessionId}?difficulty=${quizDifficulty}&questions=${questions}`}>
-                  <Sparkles className="h-4 w-4" />
-                  Quiz
-                </Link>
-              </Button>
-              <Button variant="outline" onClick={() => setIsDeleteOpen(true)}>
-                <Trash2 className="h-4 w-4" />
-                Delete session
-              </Button>
-            </div>
-          </CardHeader>
+          <SessionHero
+            sessionId={sessionId}
+            topicId={session.topicId}
+            topicName={session.topic.name}
+            title={session.title}
+            quizDifficulty={quizDifficulty}
+            questions={questions}
+            onOpenStudyTools={() =>
+              document
+                .getElementById("study-tools-panel")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+            onDelete={() => setIsDeleteOpen(true)}
+          />
         </Card>
 
-        <Card className="border-white/60">
-          <CardContent className="space-y-4 pt-6">
-            <MessageList messages={messages} isLoading={isMessagesPending} />
-            <MessageComposer
-              isSending={createMessageMutation.isPending}
-              onSend={(value) => createMessageMutation.mutate(value)}
-              placeholder={composerPlaceholder}
-            />
-            {createMessageMutation.error && (
-              <p className="text-sm text-red-600">{createMessageMutation.error.message}</p>
-            )}
-          </CardContent>
-        </Card>
+        <SessionChatCard
+          messages={messages}
+          isLoading={isMessagesPending}
+          isSending={createMessageMutation.isPending}
+          errorMessage={createMessageMutation.error?.message}
+          placeholder={composerPlaceholder}
+          onSend={(value) => createMessageMutation.mutate(value)}
+        />
       </div>
 
       <StudyToolsPanel
@@ -201,7 +185,9 @@ export function SessionPage() {
         quizDifficulty={quizDifficulty}
         questions={questions}
         onQuizDifficultyChange={setQuizDifficulty}
-        onQuestionsChange={(nextQuestions) => setQuestions(Math.max(1, Math.min(10, nextQuestions)))}
+        onQuestionsChange={(nextQuestions) =>
+          setQuestions(Math.max(1, Math.min(10, nextQuestions)))
+        }
       />
 
       <DeleteConfirmDialog

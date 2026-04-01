@@ -1,5 +1,9 @@
 import { useEffect } from "react";
-import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom";
+import {
+  RouterProvider,
+  createBrowserRouter,
+  Navigate,
+} from "react-router-dom";
 
 import { authApi } from "@/shared/lib/api";
 import { useAuthStore } from "@/features/auth/store";
@@ -48,7 +52,11 @@ function ProtectedRoute() {
   }, [bootstrapped, clearSession, finishBootstrap, token]);
 
   if (!bootstrapped) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading workspace...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+        Loading workspace...
+      </div>
+    );
   }
 
   if (!token) {

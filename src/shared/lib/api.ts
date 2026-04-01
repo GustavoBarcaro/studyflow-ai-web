@@ -1,4 +1,8 @@
-import { clearStoredAuthState, decodeAccessToken, isAccessTokenExpiredOrNearExpiry } from "@/shared/lib/auth";
+import {
+  clearStoredAuthState,
+  decodeAccessToken,
+  isAccessTokenExpiredOrNearExpiry,
+} from "@/shared/lib/auth";
 import type {
   AuthUser,
   CreateMessageResponse,
@@ -16,7 +20,8 @@ import type {
 } from "@/shared/types/domain";
 import { useAuthStore } from "@/features/auth/store";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3333";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3333";
 
 export class ApiError extends Error {
   status: number;
@@ -119,8 +124,16 @@ async function getValidAccessToken() {
   return refreshAccessToken();
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = "GET", body, auth = true, retryOnUnauthorized = true } = options;
+async function request<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  const {
+    method = "GET",
+    body,
+    auth = true,
+    retryOnUnauthorized = true,
+  } = options;
   const accessToken = auth ? await getValidAccessToken() : null;
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -149,7 +162,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   return parseResponse<T>(response);
 }
 
-function buildAuthUser(user: Partial<AuthUser> | null | undefined, emailFallback?: string): AuthUser | null {
+function buildAuthUser(
+  user: Partial<AuthUser> | null | undefined,
+  emailFallback?: string,
+): AuthUser | null {
   if (!user?.email && !emailFallback) return null;
 
   return {
@@ -160,12 +176,20 @@ function buildAuthUser(user: Partial<AuthUser> | null | undefined, emailFallback
 }
 
 export const authApi = {
-  async signUp(payload: { email: string; password: string; name?: string }) {
-    const data = await request<{ user: AuthUser; accessToken: string }>("/signup", {
-      method: "POST",
-      auth: false,
-      body: payload,
-    });
+  async signUp(payload: {
+    email: string;
+    password: string;
+    confirmPassword: string;
+    name?: string;
+  }) {
+    const data = await request<{ user: AuthUser; accessToken: string }>(
+      "/signup",
+      {
+        method: "POST",
+        auth: false,
+        body: payload,
+      },
+    );
 
     useAuthStore.getState().setSession({
       accessToken: data.accessToken,
@@ -226,7 +250,10 @@ export const api = {
       throw error;
     }
   },
-  createLearningPathByTopic: (topicId: string, payload?: { goal?: string; sessionId?: string }) =>
+  createLearningPathByTopic: (
+    topicId: string,
+    payload?: { goal?: string; sessionId?: string },
+  ) =>
     request<LearningPath>(`/topics/${topicId}/learning-path`, {
       method: "POST",
       body: payload ?? {},
@@ -243,9 +270,12 @@ export const api = {
     request<null>(`/topics/${topicId}`, {
       method: "DELETE",
     }),
-  getSessions: async () => ensureArray(await request<StudySession[] | null>("/sessions")),
+  getSessions: async () =>
+    ensureArray(await request<StudySession[] | null>("/sessions")),
   getSessionsByTopic: async (topicId: string) => {
-    const sessions = await ensureArray(await request<StudySession[] | null>("/sessions"));
+    const sessions = await ensureArray(
+      await request<StudySession[] | null>("/sessions"),
+    );
     return sessions.filter((session) => session.topicId === topicId);
   },
   createSession: (payload: { title: string; topicId: string }) =>
@@ -257,8 +287,12 @@ export const api = {
     request<null>(`/sessions/${sessionId}`, {
       method: "DELETE",
     }),
-  getSession: (sessionId: string) => request<SessionDetails>(`/sessions/${sessionId}`),
-  getMessages: async (sessionId: string) => ensureArray(await request<Message[] | null>(`/sessions/${sessionId}/messages`)),
+  getSession: (sessionId: string) =>
+    request<SessionDetails>(`/sessions/${sessionId}`),
+  getMessages: async (sessionId: string) =>
+    ensureArray(
+      await request<Message[] | null>(`/sessions/${sessionId}/messages`),
+    ),
   createMessage: (sessionId: string, payload: { content: string }) =>
     request<CreateMessageResponse>(`/sessions/${sessionId}/messages`, {
       method: "POST",
@@ -273,14 +307,23 @@ export const api = {
       method: "POST",
       body: payload,
     }),
-  generateQuiz: (sessionId: string, payload: { difficulty: "easy" | "medium" | "hard"; questions: number }) =>
+  generateQuiz: (
+    sessionId: string,
+    payload: { difficulty: "easy" | "medium" | "hard"; questions: number },
+  ) =>
     request<GeneratedQuizResponse>(`/sessions/${sessionId}/quiz`, {
       method: "POST",
       body: payload,
     }),
-  generateLearningPathStepQuiz: (stepId: string, payload: { difficulty: "easy" | "medium" | "hard"; questions: number }) =>
-    request<GeneratedLearningPathStepQuizResponse>(`/learning-path-steps/${stepId}/quiz`, {
-      method: "POST",
-      body: payload,
-    }),
+  generateLearningPathStepQuiz: (
+    stepId: string,
+    payload: { difficulty: "easy" | "medium" | "hard"; questions: number },
+  ) =>
+    request<GeneratedLearningPathStepQuizResponse>(
+      `/learning-path-steps/${stepId}/quiz`,
+      {
+        method: "POST",
+        body: payload,
+      },
+    ),
 };

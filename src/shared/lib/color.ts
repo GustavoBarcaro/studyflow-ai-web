@@ -12,9 +12,10 @@ export const TOPIC_COLOR_PRESETS = [
 export function normalizeHexColor(value: string) {
   const trimmed = value.trim();
   const prefixed = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
-  const expanded = prefixed.length === 4
-    ? `#${prefixed[1]}${prefixed[1]}${prefixed[2]}${prefixed[2]}${prefixed[3]}${prefixed[3]}`
-    : prefixed;
+  const expanded =
+    prefixed.length === 4
+      ? `#${prefixed[1]}${prefixed[1]}${prefixed[2]}${prefixed[2]}${prefixed[3]}${prefixed[3]}`
+      : prefixed;
 
   return expanded.toUpperCase();
 }
