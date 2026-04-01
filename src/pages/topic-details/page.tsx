@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BrainCircuit, CheckCircle2, ListChecks, PlusCircle, Sparkles, Trash2 } from "lucide-react";
+import { BrainCircuit, CheckCircle2, ListChecks, PlusCircle, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
+import { BackLink } from "@/shared/components/common/back-link";
 import { LearningPathPanel } from "@/features/learning-paths/learning-path-panel";
 import { SessionList } from "@/features/sessions/session-list";
 import { DeleteConfirmDialog } from "@/shared/components/common/delete-confirm-dialog";
@@ -86,13 +87,6 @@ export function TopicDetailsPage() {
       navigate(`/sessions/${session.id}`);
     },
   });
-  const updateLearningPathStepMutation = useMutation({
-    mutationFn: (step: LearningPathStep) =>
-      step.completed ? api.incompleteLearningPathStep(step.id) : api.completeLearningPathStep(step.id),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["learning-path", topicId] });
-    },
-  });
   const deleteTopicMutation = useMutation({
     mutationFn: api.deleteTopic,
     onSuccess: async () => {
@@ -115,6 +109,14 @@ export function TopicDetailsPage() {
     },
   });
 
+  function normalizeSessionTitle(value: string) {
+    return value.trim().toLocaleLowerCase();
+  }
+
+  function findExistingSessionByStep(step: LearningPathStep) {
+    return sessions.find((session) => normalizeSessionTitle(session.title) === normalizeSessionTitle(step.title)) ?? null;
+  }
+
   if (isTopicPending || isSessionsPending) {
     return <PageLoading titleWidth="w-80" />;
   }
@@ -131,12 +133,7 @@ export function TopicDetailsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-2">
-          <Button asChild variant="ghost" className="px-0">
-            <Link to="/topics">
-              <ArrowLeft className="h-4 w-4" />
-              Back to topics
-            </Link>
-          </Button>
+          <BackLink to="/topics" label="Back to topics" />
           <h1 className="text-4xl font-extrabold">{topic.name}</h1>
           <p className="max-w-2xl text-muted-foreground">
             Turn sessions into a short study trail with clear next steps, visible progress, and manual completion tracking.
@@ -175,18 +172,27 @@ export function TopicDetailsPage() {
             topic={topic}
             learningPath={learningPath}
             isLoading={isLearningPathPending}
-            isUpdatingStep={updateLearningPathStepMutation.isPending}
             creatingSessionStepId={createStepSessionMutation.isPending ? createStepSessionMutation.variables?.id ?? null : null}
-            onToggleStep={(step) => updateLearningPathStepMutation.mutate(step)}
-            onCreateSession={(step) => createStepSessionMutation.mutate(step)}
+            getExistingSessionId={(step) => findExistingSessionByStep(step)?.id ?? null}
+            getTestQuizHref={(step) => `/learning-path-steps/${step.id}/quiz`}
+            onCreateSession={(step) => {
+              const existingSession = findExistingSessionByStep(step);
+
+              if (existingSession) {
+                navigate(`/sessions/${existingSession.id}`);
+                return;
+              }
+
+              createStepSessionMutation.mutate(step);
+            }}
           />
           {createStepSessionMutation.error && (
             <p className="text-sm text-red-600">{createStepSessionMutation.error.message}</p>
           )}
         </div>
       ) : (
-        <Card className="overflow-hidden border-border/70 bg-background/95 shadow-md">
-          <CardHeader className="space-y-4 border-b bg-muted/30">
+        <Card className="border-border/70 bg-background/95 shadow-md">
+          <CardHeader className="space-y-4 rounded-t-xl bg-muted/20 pb-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -209,9 +215,9 @@ export function TopicDetailsPage() {
               Generate a short, progressive study trail that feels achievable. The API already constrains this to a focused path instead of a massive syllabus.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5 pt-2">
             <div className="grid gap-3 md:grid-cols-3">
-              <div className="rounded-xl border bg-card p-4">
+              <div className="rounded-2xl border border-border/70 bg-background p-4 shadow-sm">
                 <div className="mb-3 flex items-center gap-2 text-muted-foreground">
                   <BrainCircuit className="h-4 w-4" />
                   <span className="text-sm font-medium">Topic</span>
@@ -219,7 +225,7 @@ export function TopicDetailsPage() {
                 <p className="font-semibold">{topic.name}</p>
                 <p className="mt-1 text-sm text-muted-foreground">This anchors the overall subject area for the trail.</p>
               </div>
-              <div className="rounded-xl border bg-card p-4">
+              <div className="rounded-2xl border border-border/70 bg-background p-4 shadow-sm">
                 <div className="mb-3 flex items-center gap-2 text-muted-foreground">
                   <ListChecks className="h-4 w-4" />
                   <span className="text-sm font-medium">Session context</span>
@@ -227,7 +233,7 @@ export function TopicDetailsPage() {
                 <p className="font-semibold">{sessionIdForLearningPath ? "Selected session" : "Recent topic context"}</p>
                 <p className="mt-1 text-sm text-muted-foreground">Use one session if you want the path to stay tightly scoped.</p>
               </div>
-              <div className="rounded-xl border bg-card p-4">
+              <div className="rounded-2xl border border-border/70 bg-background p-4 shadow-sm">
                 <div className="mb-3 flex items-center gap-2 text-muted-foreground">
                   <CheckCircle2 className="h-4 w-4" />
                   <span className="text-sm font-medium">Outcome</span>
@@ -244,7 +250,7 @@ export function TopicDetailsPage() {
                 value={goal}
                 onChange={(event) => setGoal(event.target.value)}
                 placeholder="Example: understand closures well enough to use them confidently in callbacks and hooks"
-                className="min-h-24 resize-none"
+                className="min-h-28 resize-none rounded-2xl border-border/80 bg-background px-4 py-3 text-sm leading-6 shadow-sm focus-visible:ring-1"
               />
               <p className="text-xs text-muted-foreground">
                 Keep it outcome-oriented. The model uses this to shape the sequence and examples.
@@ -303,9 +309,9 @@ export function TopicDetailsPage() {
               </div>
             </div>
 
-            <Separator />
           </CardContent>
-          <CardFooter className="flex flex-col items-stretch gap-3 border-t bg-muted/20">
+          <CardFooter className="flex flex-col items-stretch gap-3 pt-0">
+            <Separator className="mb-1" />
             <Button className="w-full" disabled={createLearningPathMutation.isPending} onClick={() => createLearningPathMutation.mutate()}>
               {createLearningPathMutation.isPending ? "Generating learning path..." : "Generate learning path"}
             </Button>

@@ -51,6 +51,7 @@ export type Message = {
   role: "user" | "assistant" | string;
   content: string;
   createdAt: string;
+  isPending?: boolean;
 };
 
 export type SessionDetails = StudySession & {
@@ -94,4 +95,26 @@ export type QuizQuestion = {
 
 export type GeneratedQuizResponse = {
   quiz: QuizQuestion[];
+};
+
+export type LearningPathQuizStep = {
+  id: string;
+  learningPathId: string;
+  title: string;
+  description: string;
+  order: number;
+};
+
+export type LearningPathQuizMeta = {
+  id: string;
+  topicId: string;
+  title: string;
+  description: string;
+  status: string;
+};
+
+export type GeneratedLearningPathStepQuizResponse = {
+  quiz: QuizQuestion[];
+  learningPathStep: LearningPathQuizStep;
+  learningPath: LearningPathQuizMeta;
 };

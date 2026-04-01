@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles, Target, Trash2 } from "lucide-react";
+import { Sparkles, Target, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { BackLink } from "@/shared/components/common/back-link";
 import { DeleteConfirmDialog } from "@/shared/components/common/delete-confirm-dialog";
 import { MessageComposer } from "@/features/messages/message-composer";
 import { MessageList } from "@/features/messages/message-list";
@@ -11,7 +12,7 @@ import { PageLoading } from "@/shared/components/common/page-loading";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { api } from "@/shared/lib/api";
-import type { QuizDifficulty } from "@/shared/types/domain";
+import type { CreateMessageResponse, Message, QuizDifficulty } from "@/shared/types/domain";
 
 export function SessionPage() {
   const { sessionId = "" } = useParams();
@@ -39,11 +40,63 @@ export function SessionPage() {
   });
   const createMessageMutation = useMutation({
     mutationFn: (content: string) => api.createMessage(sessionId, { content }),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["messages", sessionId] }),
-        queryClient.invalidateQueries({ queryKey: ["session", sessionId] }),
+    onMutate: async (content) => {
+      await queryClient.cancelQueries({ queryKey: ["messages", sessionId] });
+
+      const previousMessages = queryClient.getQueryData<Message[]>(["messages", sessionId]) ?? [];
+      const timestamp = new Date().toISOString();
+      const optimisticUserMessage: Message = {
+        id: `optimistic-user-${Date.now()}`,
+        sessionId,
+        role: "user",
+        content,
+        createdAt: timestamp,
+      };
+      const optimisticAssistantMessage: Message = {
+        id: `optimistic-assistant-${Date.now()}`,
+        sessionId,
+        role: "assistant",
+        content: "",
+        createdAt: timestamp,
+        isPending: true,
+      };
+
+      queryClient.setQueryData<Message[]>(["messages", sessionId], [
+        ...previousMessages,
+        optimisticUserMessage,
+        optimisticAssistantMessage,
       ]);
+
+      return {
+        previousMessages,
+        optimisticUserMessageId: optimisticUserMessage.id,
+        optimisticAssistantMessageId: optimisticAssistantMessage.id,
+      };
+    },
+    onError: (_error, _content, context) => {
+      if (context?.previousMessages) {
+        queryClient.setQueryData(["messages", sessionId], context.previousMessages);
+      }
+    },
+    onSuccess: async (data: CreateMessageResponse, _content, context) => {
+      queryClient.setQueryData<Message[]>(["messages", sessionId], (currentMessages = []) =>
+        currentMessages.map((message) => {
+          if (message.id === context?.optimisticUserMessageId) {
+            return data.userMessage;
+          }
+
+          if (message.id === context?.optimisticAssistantMessageId) {
+            return data.assistantMessage;
+          }
+
+          return message;
+        }),
+      );
+
+      await queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["messages", sessionId] });
     },
   });
   const deleteSessionMutation = useMutation({
@@ -70,6 +123,12 @@ export function SessionPage() {
     return <p>Session not found.</p>;
   }
 
+  const latestUserMessage = [...messages].reverse().find((message) => message.role === "user")?.content?.trim();
+  const sessionPromptContext = latestUserMessage || session.title;
+  const shortenedSessionPromptContext =
+    sessionPromptContext.length > 60 ? `${sessionPromptContext.slice(0, 57).trim()}...` : sessionPromptContext;
+  const composerPlaceholder = `Ask about ${session.topic.name} or try "Explain about ${shortenedSessionPromptContext} simply"`;
+
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
@@ -77,12 +136,7 @@ export function SessionPage() {
           <CardHeader className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-2">
-                <Button asChild variant="ghost" className="px-0">
-                  <Link to={`/topics/${session.topicId}`}>
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to topic
-                  </Link>
-                </Button>
+                <BackLink to={`/topics/${session.topicId}`} label="Back to topic" />
                 <CardTitle className="text-4xl font-extrabold">{session.title}</CardTitle>
                 <CardDescription className="max-w-2xl text-base">
                   The session page is the product core: chat centered, actions explicit, and the learner always reminded of the study objective.
@@ -133,6 +187,7 @@ export function SessionPage() {
             <MessageComposer
               isSending={createMessageMutation.isPending}
               onSend={(value) => createMessageMutation.mutate(value)}
+              placeholder={composerPlaceholder}
             />
             {createMessageMutation.error && (
               <p className="text-sm text-red-600">{createMessageMutation.error.message}</p>

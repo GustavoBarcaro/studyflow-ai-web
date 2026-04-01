@@ -10,6 +10,7 @@ import { TopicsPage } from "@/pages/topics/page";
 import { TopicDetailsPage } from "@/pages/topic-details/page";
 import { SessionPage } from "@/pages/session/page";
 import { QuizPage } from "@/pages/quiz/page";
+import { LearningPathQuizPage } from "@/pages/learning-path-quiz/page";
 
 function ProtectedRoute() {
   const token = useAuthStore((state) => state.accessToken);
@@ -89,6 +90,10 @@ const router = createBrowserRouter([
       {
         path: "quizzes/:sessionId",
         element: <QuizPage />,
+      },
+      {
+        path: "learning-path-steps/:stepId/quiz",
+        element: <LearningPathQuizPage />,
       },
     ],
   },

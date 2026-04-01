@@ -11,12 +11,18 @@ import { cn } from "@/shared/lib/utils";
 type QuizCardProps = {
   quiz: QuizQuestion[];
   difficulty: QuizDifficulty;
+  onSubmitResult?: (result: { correctCount: number; total: number; percentage: number }) => void;
 };
 
-export function QuizCard({ quiz, difficulty }: QuizCardProps) {
+export function QuizCard({ quiz, difficulty, onSubmitResult }: QuizCardProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const answeredCount = Object.keys(answers).length;
+  const correctCount = quiz.reduce((total, question, index) => {
+    const key = `${question.question}-${index}`;
+    return total + (answers[key] === question.correctOptionId ? 1 : 0);
+  }, 0);
+  const percentage = quiz.length === 0 ? 0 : Math.round((correctCount / quiz.length) * 100);
 
   return (
     <Card className="border-border/70 bg-background/95 shadow-md">
@@ -34,6 +40,16 @@ export function QuizCard({ quiz, difficulty }: QuizCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {submitted && (
+          <div className={cn("rounded-xl border p-4", percentage >= 70 ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50")}>
+            <p className="text-sm font-semibold">
+              Score: {correctCount}/{quiz.length} correct
+            </p>
+            <p className={cn("mt-1 text-sm", percentage >= 70 ? "text-emerald-700" : "text-amber-700")}>
+              {percentage}% {percentage >= 70 ? "You passed." : "You need at least 70% to pass."}
+            </p>
+          </div>
+        )}
         {quiz.map((question, index) => (
           (() => {
             const key = `${question.question}-${index}`;
@@ -150,7 +166,17 @@ export function QuizCard({ quiz, difficulty }: QuizCardProps) {
         ))}
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">Selected answers stay visibly highlighted before you submit.</p>
-          <Button onClick={() => setSubmitted(true)} disabled={answeredCount === 0}>
+          <Button
+            onClick={() => {
+              setSubmitted(true);
+              onSubmitResult?.({
+                correctCount,
+                total: quiz.length,
+                percentage,
+              });
+            }}
+            disabled={answeredCount === 0}
+          >
             Check answers
           </Button>
         </div>

@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { MessageBubble } from "@/features/messages/message-bubble";
@@ -9,8 +11,23 @@ type MessageListProps = {
 };
 
 export function MessageList({ messages, isLoading = false }: MessageListProps) {
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const viewport = viewportRef.current;
+
+    if (!viewport) return;
+
+    viewport.scrollTo({
+      top: viewport.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, isLoading]);
+
   return (
-    <ScrollArea className="h-[420px] rounded-[1.5rem] border bg-muted/40 p-4">
+    <ScrollArea viewportRef={viewportRef} className="h-[420px] rounded-[1.5rem] border bg-muted/40 p-4">
       {isLoading ? (
         <div className="space-y-4">
           <Skeleton className="h-24 w-[78%] rounded-[1.5rem]" />

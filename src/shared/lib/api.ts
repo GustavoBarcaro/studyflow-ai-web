@@ -5,6 +5,7 @@ import type {
   ExplainAgainRequest,
   ExplainAgainResponse,
   GeneratedQuizResponse,
+  GeneratedLearningPathStepQuizResponse,
   LearningPath,
   LearningPathStep,
   Message,
@@ -260,6 +261,11 @@ export const api = {
     }),
   generateQuiz: (sessionId: string, payload: { difficulty: "easy" | "medium" | "hard"; questions: number }) =>
     request<GeneratedQuizResponse>(`/sessions/${sessionId}/quiz`, {
+      method: "POST",
+      body: payload,
+    }),
+  generateLearningPathStepQuiz: (stepId: string, payload: { difficulty: "easy" | "medium" | "hard"; questions: number }) =>
+    request<GeneratedLearningPathStepQuizResponse>(`/learning-path-steps/${stepId}/quiz`, {
       method: "POST",
       body: payload,
     }),

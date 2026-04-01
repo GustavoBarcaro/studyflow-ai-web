@@ -1,7 +1,8 @@
-import { ArrowRight, CheckCircle2, Circle, Loader2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import { Separator } from "@/shared/components/ui/separator";
@@ -13,9 +14,9 @@ type LearningPathPanelProps = {
   topic: Topic;
   learningPath?: LearningPath | null;
   isLoading?: boolean;
-  isUpdatingStep?: boolean;
   creatingSessionStepId?: string | null;
-  onToggleStep: (step: LearningPathStep) => void;
+  getExistingSessionId?: (step: LearningPathStep) => string | null;
+  getTestQuizHref?: (step: LearningPathStep) => string;
   onCreateSession: (step: LearningPathStep) => void;
 };
 
@@ -23,9 +24,9 @@ export function LearningPathPanel({
   topic,
   learningPath,
   isLoading = false,
-  isUpdatingStep = false,
   creatingSessionStepId = null,
-  onToggleStep,
+  getExistingSessionId,
+  getTestQuizHref,
   onCreateSession,
 }: LearningPathPanelProps) {
   if (isLoading) {
@@ -83,69 +84,97 @@ export function LearningPathPanel({
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {learningPath.steps.map((step, index) => (
-          <div
-            key={step.id}
-            className={cn(
-              "rounded-xl border p-4 transition-colors",
-              step.completed ? "border-emerald-200 bg-emerald-50" : "border-border bg-card",
-            )}
-          >
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-              <div className="flex items-start gap-3">
-                <div className="pt-0.5">
-                  {step.completed ? (
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Step {index + 1}</p>
-                  <p className="font-semibold">{step.title}</p>
-                  <p className="text-sm leading-6 text-muted-foreground">{step.description}</p>
-                </div>
-              </div>
+        {learningPath.steps.map((step, index) => {
+          const existingSessionId = getExistingSessionId?.(step) ?? null;
 
-              <div className="flex flex-col gap-2 sm:flex-row">
-                {!step.completed && (
-                  <Button
-                    variant="outline"
-                    disabled={creatingSessionStepId !== null}
-                    onClick={() => onCreateSession(step)}
-                  >
-                    {creatingSessionStepId === step.id ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Creating session...
-                      </>
-                    ) : (
-                      <>
-                        Start session
-                        <ArrowRight className="h-4 w-4" />
-                      </>
+          return (
+            <div
+              key={step.id}
+              className={cn(
+                "rounded-xl border p-4 transition-colors",
+                step.completed ? "border-emerald-200 bg-emerald-50" : "border-border bg-card",
+              )}
+            >
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex min-w-0 items-start gap-3">
+                  <div
+                    className={cn(
+                      "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-semibold shadow-sm",
+                      step.completed
+                        ? "border-emerald-200 bg-emerald-100 text-emerald-700"
+                        : "border-border/80 bg-muted/40 text-muted-foreground",
                     )}
-                  </Button>
-                )}
-                <Button variant={step.completed ? "outline" : "default"} disabled={isUpdatingStep} onClick={() => onToggleStep(step)}>
-                  {isUpdatingStep ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Updating...
-                    </>
-                  ) : step.completed ? (
-                    "Mark as undone"
+                  >
+                    {step.completed ? (
+                      <CheckCircle2 className="h-4.5 w-4.5" />
+                    ) : (
+                      <span>{index + 1}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0 space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Step {index + 1}</p>
+                      {step.completed && (
+                        <Badge
+                          variant="secondary"
+                          className="rounded-md border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-emerald-700 hover:bg-emerald-100"
+                        >
+                          Passed quiz
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-base font-semibold leading-6">{step.title}</p>
+                    <p className="text-sm leading-6 text-muted-foreground">{step.description}</p>
+                  </div>
+                </div>
+
+                <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:min-w-[190px] lg:flex-col lg:items-end">
+                  {step.completed ? (
+                    <div className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 bg-background px-3 py-2 shadow-sm sm:w-auto">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+                      </div>
+                      <div className="text-left lg:text-right">
+                        <p className="text-sm font-semibold text-emerald-800">Completed</p>
+                        <p className="text-xs text-emerald-700/80">Passed 10-question test</p>
+                      </div>
+                    </div>
                   ) : (
-                    "Mark as done"
+                    <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:flex-col">
+                      <Button
+                        variant="outline"
+                        disabled={creatingSessionStepId !== null}
+                        onClick={() => onCreateSession(step)}
+                        className="justify-between sm:flex-1 lg:w-full"
+                      >
+                        {creatingSessionStepId === step.id ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Creating session...
+                          </>
+                        ) : (
+                          <>
+                            {existingSessionId ? "Open session" : "Start session"}
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
+                      </Button>
+                      <Link
+                        to={getTestQuizHref?.(step) ?? "#"}
+                        className={cn(buttonVariants({ variant: "default" }), "justify-between sm:flex-1 lg:w-full")}
+                      >
+                        Test yourself
+                      </Link>
+                    </div>
                   )}
-                </Button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         <Separator />
         <p className="text-sm text-muted-foreground">
-          Manual progress for now. Later this can be inferred from sessions, quizzes, or repeated mastery.
+          Each step is completed by passing a hard 10-question quiz with at least 70%.
         </p>
       </CardContent>
     </Card>
