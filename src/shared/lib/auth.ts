@@ -10,6 +10,7 @@ type StoredAuthState = {
 type JwtPayload = {
   sub?: string;
   email?: string;
+  exp?: number;
 };
 
 function decodeBase64Url(value: string) {
@@ -39,6 +40,30 @@ export function decodeAccessToken(accessToken: string): AuthUser | null {
   } catch {
     return null;
   }
+}
+
+export function getAccessTokenExpiry(accessToken: string): number | null {
+  try {
+    const [, payload] = accessToken.split(".");
+
+    if (!payload) return null;
+
+    const decoded = JSON.parse(decodeBase64Url(payload)) as JwtPayload;
+
+    return typeof decoded.exp === "number" ? decoded.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+export function isAccessTokenExpiredOrNearExpiry(accessToken: string, thresholdMs = 30_000) {
+  const expiry = getAccessTokenExpiry(accessToken);
+
+  if (!expiry) {
+    return false;
+  }
+
+  return expiry - Date.now() <= thresholdMs;
 }
 
 export function readStoredAuthState(): StoredAuthState {

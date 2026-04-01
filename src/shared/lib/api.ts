@@ -1,4 +1,4 @@
-import { clearStoredAuthState, decodeAccessToken } from "@/shared/lib/auth";
+import { clearStoredAuthState, decodeAccessToken, isAccessTokenExpiredOrNearExpiry } from "@/shared/lib/auth";
 import type {
   AuthUser,
   CreateMessageResponse,
@@ -105,9 +105,23 @@ async function refreshAccessToken() {
   return refreshPromise;
 }
 
+async function getValidAccessToken() {
+  const currentAccessToken = useAuthStore.getState().accessToken;
+
+  if (!currentAccessToken) {
+    return null;
+  }
+
+  if (!isAccessTokenExpiredOrNearExpiry(currentAccessToken)) {
+    return currentAccessToken;
+  }
+
+  return refreshAccessToken();
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, auth = true, retryOnUnauthorized = true } = options;
-  const accessToken = auth ? useAuthStore.getState().accessToken : null;
+  const accessToken = auth ? await getValidAccessToken() : null;
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
