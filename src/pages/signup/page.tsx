@@ -1,5 +1,5 @@
 import { AuthForm } from "@/features/auth/form";
-import { AuthShell } from "@/shared/components/layout/auth-shell";
+import { AuthShell } from "@/features/auth/shell";
 
 export function SignupPage() {
   return (
