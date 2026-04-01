@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, LogOut, PlusCircle } from "lucide-react";
+import { BookOpen, LogOut } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 
 import { useAuthStore } from "@/features/auth/store";
@@ -39,16 +39,9 @@ export function AppShell() {
     <div className="min-h-screen p-4 md:p-6">
       <div className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1600px] gap-4 lg:grid-cols-[280px_1fr]">
         <aside className="rounded-[2rem] border bg-white/85 p-5 shadow-soft backdrop-blur">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">StudyFlow</p>
-              <h2 className="mt-2 text-xl font-extrabold">Your topics</h2>
-            </div>
-            <Button variant="secondary" size="icon" asChild>
-              <Link to="/topics?create=1#topic-name" aria-label="Create topic">
-                <PlusCircle className="h-4 w-4" />
-              </Link>
-            </Button>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">StudyFlow</p>
+            <h2 className="mt-2 text-xl font-extrabold">Your topics</h2>
           </div>
 
           <nav className="mt-8 space-y-2">
