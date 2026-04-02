@@ -38,20 +38,18 @@ export function SessionHero({
         titleClassName="text-3xl sm:text-4xl"
         description={
           <CardDescription className="max-w-2xl text-base">
-            The session page is the product core: chat centered, actions
-            explicit, and the learner always reminded of the study objective.
+            Ask questions, review answers, and use study tools without losing the context of this session.
           </CardDescription>
         }
         aside={
           <div className="w-full rounded-[1.5rem] bg-white p-4 shadow-sm sm:max-w-sm">
             <p className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
               <Target className="h-4 w-4 text-accent" />
-              Session objective
+              Study focus
             </p>
             <p className="mt-2 text-sm leading-6">
-              Build understanding inside{" "}
-              <span className="font-semibold">{topicName}</span> and keep every
-              explanation connected to the stored conversation.
+              Stay focused on{" "}
+              <span className="font-semibold">{topicName}</span> and keep your questions, answers, and study tools in one place.
             </p>
           </div>
         }

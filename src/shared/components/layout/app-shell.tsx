@@ -37,7 +37,7 @@ export function AppShell() {
       sessionsCount: relatedSessions.length,
       lastActivity: lastActivity
         ? formatRelativeSessionDate(lastActivity)
-        : "No sessions yet",
+        : "No study sessions yet",
     };
   });
 
@@ -49,7 +49,7 @@ export function AppShell() {
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
               StudyFlow
             </p>
-            <h2 className="mt-2 text-xl font-extrabold">Your topics</h2>
+            <h2 className="mt-2 text-xl font-extrabold">Your study topics</h2>
           </div>
 
           <nav className="mt-8 space-y-2">
@@ -65,7 +65,7 @@ export function AppShell() {
               }
             >
               <BookOpen className="h-4 w-4" />
-              Browse topics
+              All topics
             </NavLink>
           </nav>
 

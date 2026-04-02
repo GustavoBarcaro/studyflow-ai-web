@@ -79,7 +79,7 @@ export function TopicsPage() {
       sessionsCount: relatedSessions.length,
       lastActivity: lastActivity
         ? formatRelativeSessionDate(lastActivity)
-        : "No sessions yet",
+        : "No study sessions yet",
     };
   });
 
@@ -127,11 +127,10 @@ export function TopicsPage() {
               Topics
             </p>
             <h1 className="text-3xl font-extrabold sm:text-4xl">
-              Study organized by topic, with visible progress.
+              Keep your study topics organized.
             </h1>
             <p className="text-muted-foreground">
-              The home screen should answer three things fast: what to study,
-              where you left off, and how to keep moving.
+              Create topics for each subject and jump back into the sessions you want to review.
             </p>
           </div>
           <div className="w-full max-w-md space-y-4 rounded-[1.5rem] border bg-background/90 p-4 shadow-sm backdrop-blur">
@@ -142,7 +141,7 @@ export function TopicsPage() {
                 ref={topicNameInputRef}
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Create a new topic"
+                placeholder="Enter a topic name"
               />
             </div>
             <TopicColorPicker color={color} onChange={setColor} />
@@ -162,7 +161,7 @@ export function TopicsPage() {
               {createTopicMutation.isPending ? "Creating..." : "Create topic"}
             </Button>
             {!isValidHexColor(color) ? (
-              <InlineError message="Choose a valid hexadecimal color to create the topic." />
+              <InlineError message="Enter a valid hex color before creating the topic." />
             ) : null}
             <InlineError message={createTopicMutation.error?.message} />
           </div>
@@ -187,8 +186,7 @@ export function TopicsPage() {
           <Card className="border-dashed border-white/60 xl:col-span-3">
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">
-                No topics yet. Create the first one to start organizing
-                sessions.
+                No topics yet. Create your first topic to start studying.
               </p>
             </CardContent>
           </Card>
@@ -203,7 +201,7 @@ export function TopicsPage() {
         title="Delete topic?"
         description={
           topicToDelete
-            ? `This will remove "${topicToDelete.name}" and its study history. This action cannot be undone.`
+            ? `This will permanently delete "${topicToDelete.name}" and its study history. This action cannot be undone.`
             : ""
         }
         confirmLabel="Delete topic"

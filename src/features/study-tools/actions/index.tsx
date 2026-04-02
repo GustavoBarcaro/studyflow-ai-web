@@ -29,8 +29,8 @@ export function StudyToolsActionsCard({
   return (
     <StudyToolCard
       title="Study tools"
-      description="Keep the learning flow tight: summarize, simplify, and test understanding."
-      headerAction={<Badge>Session actions</Badge>}
+      description="Use these tools to review the session, simplify difficult ideas, or test yourself."
+      headerAction={<Badge>Tools</Badge>}
     >
       <Button
         className="w-full justify-start"
@@ -39,7 +39,7 @@ export function StudyToolsActionsCard({
         onClick={onSummarize}
       >
         <ListChecks className="h-4 w-4" />
-        {isSummaryPending ? "Generating summary..." : "Summarize session"}
+        {isSummaryPending ? "Creating summary..." : "Summarize session"}
       </Button>
       <Button
         className="w-full justify-start"
@@ -48,14 +48,14 @@ export function StudyToolsActionsCard({
         onClick={onExplainAgain}
       >
         <HelpCircle className="h-4 w-4" />
-        {isExplainPending ? "Reframing explanation..." : "Explain again"}
+        {isExplainPending ? "Explaining again..." : "Explain again"}
       </Button>
       <Button className="w-full justify-start" asChild>
         <Link
           to={`/quizzes/${sessionId}?difficulty=${quizDifficulty}&questions=${questions}`}
         >
           <Sparkles className="h-4 w-4" />
-          Generate quiz
+          Open quiz
         </Link>
       </Button>
     </StudyToolCard>

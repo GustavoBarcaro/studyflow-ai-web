@@ -52,13 +52,12 @@ export function QuizPage() {
     <div className="space-y-6">
       <PageHeader
         backLink={{ to: `/sessions/${sessionId}`, label: "Back to session" }}
-        title="Quiz flow"
+        title="Session quiz"
         titleClassName="text-3xl sm:text-4xl"
         description={
           <p className="max-w-2xl">
-            The quiz is generated live from the session context
-            {session ? ` in ${session.topic.name}` : ""}, not bolted on as a
-            separate tool.
+            This quiz is based on your current session
+            {session ? ` in ${session.topic.name}` : ""}.
           </p>
         }
       />

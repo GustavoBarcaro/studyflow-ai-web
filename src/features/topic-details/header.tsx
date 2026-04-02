@@ -20,8 +20,7 @@ export function TopicDetailsHeader({
       titleClassName="text-3xl sm:text-4xl"
       description={
         <p className="max-w-2xl">
-          Turn sessions into a short study trail with clear next steps, visible
-          progress, and manual completion tracking.
+          Create study sessions, review your progress, and build a learning path for this topic.
         </p>
       }
       actions={

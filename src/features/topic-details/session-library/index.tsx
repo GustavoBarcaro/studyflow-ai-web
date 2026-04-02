@@ -24,8 +24,7 @@ export function SessionLibraryCard({
       <CardHeader>
         <CardTitle>Session library</CardTitle>
         <CardDescription>
-          Each session is scoped to one objective, so the AI has context and the
-          learner sees progress.
+          Open any session to continue studying, review past questions, or delete what you no longer need.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -37,8 +36,7 @@ export function SessionLibraryCard({
           />
         ) : (
           <p className="text-sm text-muted-foreground">
-            No sessions in this topic yet. Create one above to start the study
-            flow.
+            No sessions in this topic yet. Create one above to get started.
           </p>
         )}
       </CardContent>

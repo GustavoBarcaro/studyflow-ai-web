@@ -41,10 +41,10 @@ export function QuizCard({ quiz, difficulty, onSubmitResult }: QuizCardProps) {
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <CardTitle className="text-xl font-extrabold sm:text-2xl">
-              Session quiz
+              Quiz
             </CardTitle>
             <CardDescription>
-              Answer first, then review the explanation for each question.
+              Answer the questions, then review the explanations at the end.
             </CardDescription>
           </div>
           <Badge className="capitalize">{difficulty}</Badge>
@@ -250,7 +250,7 @@ export function QuizCard({ quiz, difficulty, onSubmitResult }: QuizCardProps) {
         )}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Selected answers stay visibly highlighted before you submit.
+            You can change your answers before checking the results.
           </p>
           <Button
             className="w-full sm:w-auto"

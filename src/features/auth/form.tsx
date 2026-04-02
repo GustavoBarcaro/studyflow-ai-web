@@ -128,8 +128,8 @@ export function AuthForm({ mode }: AuthFormProps) {
         </CardTitle>
         <CardDescription>
           {isSignup
-            ? "Start building topic-based study sessions with AI help."
-            : "Continue from your last session and keep the learning flow active."}
+            ? "Start organizing your study topics and learning with AI support."
+            : "Sign in to continue your study sessions and pick up where you left off."}
         </CardDescription>
       </CardHeader>
       <CardContent>

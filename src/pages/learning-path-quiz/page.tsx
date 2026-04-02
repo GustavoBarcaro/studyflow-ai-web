@@ -86,8 +86,7 @@ export function LearningPathQuizPage() {
               {quizResponse.learningPathStep.description}
             </p>
             <p className="text-sm">
-              Pass with at least {PASS_THRESHOLD}% to complete this step in your
-              learning path.
+              Score at least {PASS_THRESHOLD}% to complete this learning path step.
             </p>
           </div>
         }
@@ -98,7 +97,7 @@ export function LearningPathQuizPage() {
           <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-sm font-medium text-emerald-700">
               <CheckCircle2 className="h-4 w-4" />
-              You passed. This step is now completed.
+              You passed. This step is complete.
             </div>
             <Button
               variant="outline"
@@ -106,7 +105,7 @@ export function LearningPathQuizPage() {
                 navigate(`/topics/${quizResponse.learningPath.topicId}`)
               }
             >
-              Return to learning path
+              Back to learning path
             </Button>
           </div>
         </SurfaceCard>

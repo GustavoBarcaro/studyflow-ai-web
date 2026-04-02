@@ -57,7 +57,7 @@ export function StudyToolsQuizSettingsCard({
         />
       </div>
       <p className="text-sm text-muted-foreground">
-        The quiz page generates on demand from the current session context.
+        Your quiz is created from the content of this study session.
       </p>
     </StudyToolCard>
   );

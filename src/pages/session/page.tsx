@@ -148,7 +148,7 @@ export function SessionPage() {
     sessionPromptContext.length > 60
       ? `${sessionPromptContext.slice(0, 57).trim()}...`
       : sessionPromptContext;
-  const composerPlaceholder = `Ask about ${session.topic.name} or try "Explain about ${shortenedSessionPromptContext} simply"`;
+  const composerPlaceholder = `Ask a question about ${session.topic.name} or try "Explain ${shortenedSessionPromptContext} in simple terms"`;
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">

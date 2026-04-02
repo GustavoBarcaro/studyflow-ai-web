@@ -50,27 +50,25 @@ export function LearningPathGeneratorCard({
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="gap-1 rounded-md px-2 py-1">
                 <Sparkles className="h-3.5 w-3.5" />
-                Manual generation
+                AI generated
               </Badge>
               <Badge variant="outline" className="rounded-md px-2 py-1">
                 4-6 steps
               </Badge>
             </div>
-            <CardTitle>Create learning path</CardTitle>
+            <CardTitle>Create a learning path</CardTitle>
           </div>
           <div className="rounded-lg border bg-background px-3 py-2 text-right">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Based on
+              Uses
             </p>
             <p className="text-sm font-semibold">
-              Topic + session history + goal
+              Topic, sessions, and your goal
             </p>
           </div>
         </div>
         <CardDescription>
-          Generate a short, progressive study trail that feels achievable. The
-          API already constrains this to a focused path instead of a massive
-          syllabus.
+          Generate a step-by-step plan to help you study this topic with a clear next step.
         </CardDescription>
       </CardHeader>
 
@@ -91,8 +89,7 @@ export function LearningPathGeneratorCard({
             className="min-h-28 resize-none rounded-2xl border-border/80 bg-background px-4 py-3 text-sm leading-6 shadow-sm focus-visible:ring-1"
           />
           <p className="text-xs text-muted-foreground">
-            Keep it outcome-oriented. The model uses this to shape the sequence
-            and examples.
+            Describe what you want to learn or be able to do.
           </p>
         </div>
 
@@ -110,8 +107,7 @@ export function LearningPathGeneratorCard({
         </Button>
         <InlineError message={errorMessage} />
         <p className="text-sm text-muted-foreground">
-          Manual creation for now. Later this can also be suggested
-          automatically after a strong first session.
+          Pick a session if you want the learning path to use that context too.
         </p>
       </CardFooter>
     </SurfaceCard>

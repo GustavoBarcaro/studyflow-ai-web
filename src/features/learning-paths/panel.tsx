@@ -62,7 +62,7 @@ export function LearningPathPanel({
         <CardHeader>
           <CardTitle>Learning path</CardTitle>
           <CardDescription>
-            The app could not load a learning path for this topic yet.
+            No learning path is available for this topic yet.
           </CardDescription>
         </CardHeader>
       </SurfaceCard>
@@ -93,7 +93,7 @@ export function LearningPathPanel({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Trail progress</span>
+            <span>Your progress</span>
             <span>
               {completedSteps}/{totalSteps} steps completed
             </span>
@@ -212,8 +212,7 @@ export function LearningPathPanel({
         })}
         <Separator />
         <p className="text-sm text-muted-foreground">
-          Each step is completed by passing a hard 10-question quiz with at
-          least 70%.
+          Complete each step by passing the 10-question quiz with at least 70%.
         </p>
       </CardContent>
     </SurfaceCard>

@@ -36,7 +36,7 @@ export function StudyToolsExplainCard({
           id="focus"
           value={focus}
           onChange={(event) => onFocusChange(event.target.value)}
-          placeholder="Focus on one confusing part"
+          placeholder="What would you like explained?"
         />
       </div>
       <div className="space-y-2">
@@ -68,7 +68,7 @@ export function StudyToolsExplainCard({
         ) : explanation ? (
           <MarkdownContent content={explanation} />
         ) : (
-          "Request a fresh explanation tuned to a specific focus area and study level."
+          "Ask for a simpler explanation based on your level and the part you want to focus on."
         )}
       </div>
       <InlineError message={errorMessage} />

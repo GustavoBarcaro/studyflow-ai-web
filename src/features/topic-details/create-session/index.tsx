@@ -31,15 +31,14 @@ export function CreateSessionCard({
       <CardHeader className="space-y-2">
         <CardTitle className="text-lg">Start a new session</CardTitle>
         <CardDescription>
-          Create a focused conversation inside this topic and use it later as
-          context for the learning path.
+          Open a study session for this topic and ask questions as you learn.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <Input
           value={title}
           onChange={(event) => onTitleChange(event.target.value)}
-          placeholder="New session title"
+          placeholder="What do you want to study?"
         />
         <Button
           size="lg"
@@ -48,7 +47,7 @@ export function CreateSessionCard({
           onClick={onCreate}
         >
           <PlusCircle className="h-4 w-4" />
-          {isPending ? "Creating..." : "New session"}
+          {isPending ? "Creating..." : "Create session"}
         </Button>
         <InlineError message={errorMessage} />
       </CardContent>
